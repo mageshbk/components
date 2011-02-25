@@ -22,12 +22,7 @@
 
 package org.switchyard.component.soap;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.StringWriter;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,6 +57,7 @@ import org.switchyard.metadata.InOnlyOperation;
 import org.switchyard.metadata.InOutOperation;
 import org.switchyard.metadata.ServiceOperation;
 import org.switchyard.test.SwitchYardTestCase;
+import org.switchyard.test.WebServiceInvoker;
 import org.w3c.dom.Element;
 
 /**
@@ -75,55 +71,13 @@ public class SOAPGatewayTest extends SwitchYardTestCase {
     private static final long DEFAULT_NO_OF_THREADS = 100;
 
     private static URL _serviceURL;
+
     private ServiceDomain _domain;
     private SOAPGateway _soapInbound;
     private SOAPGateway _soapOutbound;
     private long _noOfThreads = DEFAULT_NO_OF_THREADS;
     
     private static ModelResource _res;
-
-    private class WebServiceInvoker implements Callable<String> {
-
-        private long _threadNo;
-
-        public WebServiceInvoker(long threadNo) {
-            _threadNo = threadNo;
-        }
-
-        public String call() {
-            String input = "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap:Body>"
-                     + "   <test:sayHello xmlns:test=\"urn:switchyard-component-soap:test-ws:1.0\">"
-                     + "      <arg0>Thread " + _threadNo + "</arg0>"
-                     + "   </test:sayHello>"
-                     + "</soap:Body></soap:Envelope>";
-            String output = null;
-
-            try {
-                HttpURLConnection con = (HttpURLConnection) _serviceURL.openConnection();
-                con.setDoInput(true);
-                con.setDoOutput(true);
-                con.setRequestProperty("Content-type", "text/xml; charset=utf-8");
-                OutputStream outStream = con.getOutputStream();
-                outStream.write(input.getBytes());
-                InputStream inStream = con.getInputStream();
-                ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-                byte[] byteBuf = new byte[256];
-                int len = inStream.read(byteBuf);
-                while (len > -1) {
-                    byteStream.write(byteBuf, 0, len);
-                    len = inStream.read(byteBuf);
-                }
-                outStream.close();
-                inStream.close();
-                byteStream.close();
-                output =  byteStream.toString();
-
-            } catch (IOException ioe) {
-                output = "<error>" + ioe + "</error>";
-            }
-            return output;
-        }
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -246,7 +200,12 @@ public class SOAPGatewayTest extends SwitchYardTestCase {
         String response = null;
         Collection<Callable<String>> callables = new ArrayList<Callable<String>>();
         for (int i = 0; i < _noOfThreads; i++) {
-            callables.add(new WebServiceInvoker(i));
+            String input = "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\"><soap:Body>"
+                + "   <test:sayHello xmlns:test=\"urn:switchyard-component-soap:test-ws:1.0\">"
+                + "      <arg0>Thread " + i + "</arg0>"
+                + "   </test:sayHello>"
+                + "</soap:Body></soap:Envelope>";
+            callables.add(new WebServiceInvoker(_serviceURL, input));
         }
 
         ExecutorService executorService = Executors.newFixedThreadPool(DEFAULT_THREAD_COUNT);
