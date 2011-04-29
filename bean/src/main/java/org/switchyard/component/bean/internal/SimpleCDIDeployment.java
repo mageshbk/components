@@ -84,6 +84,7 @@ public class SimpleCDIDeployment extends AbstractDeployment {
             ServiceInterface serviceInterface;
             ServiceReference service;
 
+            activator.lookupBeanMetaData();
             serviceInterface = activator.buildServiceInterface(serviceName);
             service = domain.registerService(serviceName, handler, serviceInterface);
             activator.start(service);
