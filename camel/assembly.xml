@@ -12,6 +12,21 @@
       <outputDirectory>/modules/org/switchyard/component/camel/main</outputDirectory>
       <filtered>true</filtered>
     </file>
+    <file>
+      <source>src/build/resources/camel/core/module.xml</source>
+      <outputDirectory>/modules/org/apache/camel/core/main</outputDirectory>
+      <filtered>true</filtered>
+    </file>
+    <file>
+      <source>src/build/resources/camel/spring/module.xml</source>
+      <outputDirectory>/modules/org/apache/camel/spring/main</outputDirectory>
+      <filtered>true</filtered>
+    </file>
+    <file>
+      <source>src/build/resources/fusesource/commonman/module.xml</source>
+      <outputDirectory>/modules/org/fusesource/commonman/main</outputDirectory>
+      <filtered>true</filtered>
+    </file>
   </files>
   <dependencySets>
     <dependencySet>
@@ -20,6 +35,27 @@
           <include>org.switchyard.components:switchyard-component-camel</include>
        </includes>
        <outputDirectory>/modules/org/switchyard/component/camel/main</outputDirectory>
+    </dependencySet>
+    <dependencySet>
+       <useTransitiveDependencies>false</useTransitiveDependencies>
+       <includes>
+          <include>org.apache.camel:camel-core</include>
+       </includes>
+       <outputDirectory>/modules/org/apache/camel/core/main</outputDirectory>
+    </dependencySet>
+    <dependencySet>
+       <useTransitiveDependencies>false</useTransitiveDependencies>
+       <includes>
+          <include>org.apache.camel:camel-spring</include>
+       </includes>
+       <outputDirectory>/modules/org/apache/camel/spring/main</outputDirectory>
+    </dependencySet>
+    <dependencySet>
+       <useTransitiveDependencies>false</useTransitiveDependencies>
+       <includes>
+          <include>org.fusesource.commonman:commons-management</include>
+       </includes>
+       <outputDirectory>/modules/org/fusesource/commonman/main</outputDirectory>
     </dependencySet>
   </dependencySets>
 </assembly>
