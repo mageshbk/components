@@ -47,7 +47,9 @@ import org.switchyard.HandlerException;
 import org.switchyard.ServiceReference;
 import org.switchyard.component.bean.deploy.BeanDeploymentMetaData;
 import org.switchyard.metadata.BaseExchangeContract;
+import org.switchyard.metadata.BaseInvocationContract;
 import org.switchyard.metadata.ServiceOperation;
+import org.switchyard.metadata.java.JavaService;
 
 /**
  * Client Proxy CDI Bean.
@@ -331,13 +333,21 @@ public class ClientProxyBean implements Bean {
 
         private Exchange createExchange(ServiceReference service, Method method, ExchangeHandler responseExchangeHandler) throws BeanComponentException {
             String operationName = method.getName();
-            ServiceOperation operation = service.getInterface().getOperation(operationName);
+            JavaService referenceService = JavaService.fromClass(method.getDeclaringClass());
+            ServiceOperation invokerOperation = referenceService.getOperation(operationName);
+            ServiceOperation targetOperation = service.getInterface().getOperation(operationName);
 
-            if (operation == null) {
+            if (targetOperation == null) {
                 throw new BeanComponentException("Bean Component invocation failure.  Operation '" + operationName + "' is not defined on Service '" + _serviceQName + "'.");
             }
 
-            return service.createExchange(new BaseExchangeContract(operation), responseExchangeHandler);
+            BaseExchangeContract exchangeContract = new BaseExchangeContract(targetOperation);
+            BaseInvocationContract contractMetaData = exchangeContract.getInvokerInvocationMetaData();
+            contractMetaData.setInputType(invokerOperation.getInputType());
+            contractMetaData.setOutputType(invokerOperation.getOutputType());
+            contractMetaData.setFaultType(invokerOperation.getFaultType());
+
+            return service.createExchange(exchangeContract, responseExchangeHandler);
         }
 
     }
