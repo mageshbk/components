@@ -26,6 +26,7 @@ import javax.xml.namespace.QName;
 
 import org.switchyard.ExchangeHandler;
 import org.switchyard.ServiceReference;
+import org.switchyard.common.type.Classes;
 import org.switchyard.component.soap.InboundHandler;
 import org.switchyard.component.soap.OutboundHandler;
 import org.switchyard.component.soap.WebServiceConsumeException;
@@ -37,6 +38,10 @@ import org.switchyard.config.model.composite.CompositeReferenceModel;
 import org.switchyard.config.model.composite.CompositeServiceModel;
 import org.switchyard.deploy.BaseActivator;
 import org.switchyard.exception.SwitchYardException;
+import org.switchyard.extensions.wsdl.WSDLWriter;
+import org.switchyard.extensions.wsdl.WSDLWriterException;
+import org.switchyard.metadata.ServiceInterface;
+import org.switchyard.metadata.java.JavaService;
 
 
 /**
@@ -64,7 +69,28 @@ public class SOAPActivator extends BaseActivator {
         if (config instanceof CompositeServiceModel) {
             for (BindingModel binding : ((CompositeServiceModel)config).getBindings()) {
                 if (binding instanceof SOAPBindingModel) {
-                    InboundHandler handler = new InboundHandler((SOAPBindingModel)binding);
+                    SOAPBindingModel model = (SOAPBindingModel)binding;
+                    String wsdl = model.getWsdl();
+                    if (wsdl == null) {
+                        // Generate the WSDL
+                        CompositeServiceModel composite = (CompositeServiceModel)config;
+                        QName serviceName = composite.getComponentService().getQName();
+                        String interfaceName = composite.getComponentService().getInterface().getInterface();
+                        Class<?> cls = Classes.forName(interfaceName);
+                        if (cls == null) {
+                            throw new RuntimeException("Unable to load interface class " + interfaceName);
+                        }
+                        ServiceInterface javaService = JavaService.fromClass(cls);
+                        String tempDir = System.getProperty("java.io.tmpdir");
+                        wsdl = tempDir + serviceName.getLocalPart() + ".wsdl";
+                        try {
+                            WSDLWriter.writeWSDL(serviceName, javaService, wsdl);
+                        } catch (WSDLWriterException e) {
+                            throw new RuntimeException(e);
+                        }
+                        model.setWsdl(wsdl);
+                    }
+                    InboundHandler handler = new InboundHandler(model);
                     _inboundGateways.put(name, handler);
                     return handler;
                 }
