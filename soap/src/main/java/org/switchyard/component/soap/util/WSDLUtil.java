@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.wsdl.Definition;
 import javax.wsdl.Operation;
@@ -229,7 +230,16 @@ public final class WSDLUtil {
      * @return The Operation instance, or null if the operation was not found on the port.
      */
     public static Operation getOperation(Port port, String operationName) {
-        return port.getBinding().getPortType().getOperation(operationName, null, null);
+        
+        List<Operation> operations = port.getBinding().getPortType().getOperations();
+        
+        for (Operation operation : operations) {
+            Part part = (Part)operation.getInput().getMessage().getParts().values().iterator().next();
+            if(operationName.equals(part.getElementName().getLocalPart())){
+                return operation;
+            }
+        }
+        return null;
     }
 
     /**
@@ -329,8 +339,17 @@ public final class WSDLUtil {
             soapMetaData.setFaultType(SOAP_FAULT_MESSAGE_TYPE);
 
             if (!isOneWay(operation)) {
-                QName outputMessageQName = operation.getOutput().getMessage().getQName();
-                soapMetaData.setOutputType(outputMessageQName);
+                QName outputMessageQName = null;
+                Map partsMap = operation.getOutput().getMessage().getParts();
+                Set<String> keys = partsMap.keySet();
+                for (String key : keys) {
+                    if (key.equals("parameters")) {
+                        Part part = (Part)partsMap.get(key);
+                        outputMessageQName = part.getElementName();
+                        soapMetaData.setOutputType(outputMessageQName);
+                        break;
+                    }
+                }
             }
             contracts.put(name, exchangeContract);
         }
