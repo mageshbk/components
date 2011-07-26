@@ -26,6 +26,7 @@ import javax.xml.namespace.QName;
 
 import org.switchyard.ExchangeHandler;
 import org.switchyard.ServiceReference;
+import org.switchyard.common.type.Classes;
 import org.switchyard.component.soap.InboundHandler;
 import org.switchyard.component.soap.OutboundHandler;
 import org.switchyard.component.soap.WebServiceConsumeException;
@@ -37,7 +38,12 @@ import org.switchyard.config.model.composite.CompositeReferenceModel;
 import org.switchyard.config.model.composite.CompositeServiceModel;
 import org.switchyard.deploy.BaseActivator;
 import org.switchyard.exception.SwitchYardException;
+import org.switchyard.extensions.wsdl.WSDLWriter;
+import org.switchyard.extensions.wsdl.WSDLWriterException;
+import org.switchyard.metadata.ServiceInterface;
+import org.switchyard.metadata.java.JavaService;
 
+import javax.xml.bind.annotation.XmlSchema;
 
 /**
  * SOAP Activator.
@@ -45,6 +51,8 @@ import org.switchyard.exception.SwitchYardException;
 public class SOAPActivator extends BaseActivator {
 
     private static final String SOAP_TYPE = "soap";
+    private static final String TMP_DIR = System.getProperty("java.io.tmpdir");
+    private static final String WSDL_FILE_EXTN = ".wsdl";
     
     private Map<QName, InboundHandler> _inboundGateways = 
         new HashMap<QName, InboundHandler>();
@@ -64,7 +72,13 @@ public class SOAPActivator extends BaseActivator {
         if (config instanceof CompositeServiceModel) {
             for (BindingModel binding : ((CompositeServiceModel)config).getBindings()) {
                 if (binding instanceof SOAPBindingModel) {
-                    InboundHandler handler = new InboundHandler((SOAPBindingModel)binding);
+                    SOAPBindingModel model = (SOAPBindingModel)binding;
+                    String wsdl = model.getWsdl();
+                    if (wsdl == null) {
+                        wsdl = generateWSDL((CompositeServiceModel) config);
+                        model.setWsdl(wsdl);
+                    }
+                    InboundHandler handler = new InboundHandler(model);
                     _inboundGateways.put(name, handler);
                     return handler;
                 }
@@ -119,5 +133,30 @@ public class SOAPActivator extends BaseActivator {
     public void destroy(ServiceReference service) {
         _inboundGateways.remove(service.getName());
         _outboundGateways.remove(service.getName());
+    }
+
+    private String generateWSDL(CompositeServiceModel composite) {
+        QName serviceName = composite.getComponentService().getQName();
+        String interfaceName = composite.getComponentService().getInterface().getInterface();
+        Class<?> cls = Classes.forName(interfaceName);
+        if (cls == null) {
+            throw new RuntimeException("Unable to load interface class " + interfaceName);
+        }
+        XmlSchema schemaPackage = cls.getPackage().getAnnotation(XmlSchema.class);
+        String namespace = serviceName.getNamespaceURI();
+        String name = serviceName.getLocalPart();
+        if (namespace == null || namespace.equals("")) {
+            namespace = schemaPackage.namespace();
+            serviceName = new QName(namespace, name);
+        }
+        ServiceInterface javaService = JavaService.fromClass(cls);
+        String wsdl = TMP_DIR + name + WSDL_FILE_EXTN;
+        try {
+            WSDLWriter writer = new WSDLWriter();
+            writer.writeWSDL(serviceName, javaService, wsdl);
+        } catch (WSDLWriterException e) {
+            throw new RuntimeException(e);
+        }
+        return wsdl;
     }
 }

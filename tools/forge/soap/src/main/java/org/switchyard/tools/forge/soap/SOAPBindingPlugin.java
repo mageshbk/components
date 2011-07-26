@@ -34,6 +34,7 @@ import org.jboss.forge.shell.plugins.RequiresProject;
 import org.jboss.forge.shell.plugins.Topic;
 import org.switchyard.component.soap.PortName;
 import org.switchyard.component.soap.config.model.SOAPBindingModel;
+import org.switchyard.config.model.composite.ComponentServiceModel;
 import org.switchyard.config.model.composite.CompositeReferenceModel;
 import org.switchyard.config.model.composite.CompositeServiceModel;
 import org.switchyard.tools.forge.plugin.SwitchYardFacet;
@@ -64,10 +65,10 @@ public class SOAPBindingPlugin implements Plugin {
                     name = "serviceName",
                     description = "The service name") 
             final String serviceName,
-            @Option(required = true,
+            @Option(required = false,
                     name = "wsdl",
                     description = "URL or package-local path to the endpoint WSDL") 
-            final String wsdlLocation,
+            String wsdlLocation,
             @Option(required = false,
                     name = "serverPort",
                     description = "Bind to this port for SOAP endpoints") 
@@ -81,9 +82,15 @@ public class SOAPBindingPlugin implements Plugin {
             out.println(out.renderColor(ShellColor.RED, "No public service named: " + serviceName));
             return;
         }
-        
         SOAPBindingModel binding = new SOAPBindingModel();
+        ComponentServiceModel componentService = switchYard.getComponentService(service.getPromote());
+        if (wsdlLocation == null && !componentService.getInterface().getType().equals("java")) {
+            out.println(out.renderColor(ShellColor.RED, "WSDL cannot be generated. You must specify the wsdl paramater."));
+            return;
+        }
+
         binding.setWsdl(wsdlLocation);
+
         if (port != null) {
             binding.setServerPort(port);
         }
