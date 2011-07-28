@@ -31,10 +31,10 @@
   </types>
   
   <message name="submitOrder">
-    <part name="parameters" element="tns:order"/>
+    <part name="param" element="tns:order"/>
   </message>
   <message name="submitOrderResponse">
-    <part name="parameters" element="tns:orderAck"/>
+    <part name="return" element="tns:orderAck"/>
   </message>
   
   <portType name="OrderService">

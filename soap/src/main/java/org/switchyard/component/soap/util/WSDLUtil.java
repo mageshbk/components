@@ -226,16 +226,16 @@ public final class WSDLUtil {
     /**
      * Get the SOAP {@link Operation} instance for the specified SOAP operation name.
      * @param port The WSDL port.
-     * @param operationName The operation name.
+     * @param elementName The SOAP Body element name.
      * @return The Operation instance, or null if the operation was not found on the port.
      */
-    public static Operation getOperation(Port port, String operationName) {
+    public static Operation getOperation(Port port, String elementName) {
         
         List<Operation> operations = port.getBinding().getPortType().getOperations();
         
         for (Operation operation : operations) {
             Part part = (Part)operation.getInput().getMessage().getParts().values().iterator().next();
-            if(operationName.equals(part.getElementName().getLocalPart())){
+            if(elementName.equals(part.getElementName().getLocalPart())){
                 return operation;
             }
         }
@@ -246,13 +246,13 @@ public final class WSDLUtil {
      * Check if we are invoking a @Oneway annotated method.
      *
      * @param port The WSDL service port.
-     * @param operationName The name of the operation obtained from SOAP message.
+     * @param elementName The SOAP Body element name.
      * @return True if there is no response to be expected.
      */
-    public static boolean isOneWay(final Port port, final String operationName) {
+    public static boolean isOneWay(final Port port, final String elementName) {
         // Overloaded methods not supported
         // Encrypted messages will be treated as request-response as it cannot be decrypted
-        Operation operation = getOperation(port, operationName);
+        Operation operation = getOperation(port, elementName);
         return isOneWay(operation);
     }
     
@@ -331,25 +331,21 @@ public final class WSDLUtil {
             BaseInvocationContract soapMetaData = exchangeContract.getInvokerInvocationMetaData();
             List<Part> parts = operation.getInput().getMessage().getOrderedParts(null);
             if (parts.isEmpty()) {
-                throw new WebServicePublishException("WSDL Operation " + name + " does not have any Message parts");
+                throw new WebServicePublishException("WSDL Operation " + name + " does not have any input Message parts");
             }
-            // Only one Part (one child of the soap:body) allowed per WS-I similar to Document/Literal wrapped
+            // Only one Part (one child of the soap:body) allowed per WS-I Basic Profile similar to Document/Literal wrapped
             QName inputMessageQName = parts.get(0).getElementName();
             soapMetaData.setInputType(inputMessageQName);
             soapMetaData.setFaultType(SOAP_FAULT_MESSAGE_TYPE);
 
             if (!isOneWay(operation)) {
-                QName outputMessageQName = null;
-                Map partsMap = operation.getOutput().getMessage().getParts();
-                Set<String> keys = partsMap.keySet();
-                for (String key : keys) {
-                    if (key.equals("parameters")) {
-                        Part part = (Part)partsMap.get(key);
-                        outputMessageQName = part.getElementName();
-                        soapMetaData.setOutputType(outputMessageQName);
-                        break;
-                    }
+                parts = operation.getOutput().getMessage().getOrderedParts(null);
+                if (parts.isEmpty()) {
+                    throw new WebServicePublishException("WSDL Operation " + name + " does not have any ouput Message parts");
                 }
+                // Only one Part (one child of the soap:body) allowed per WS-I Basic Profile similar to Document/Literal wrapped
+                QName outputMessageQName = parts.get(0).getElementName();
+                soapMetaData.setOutputType(outputMessageQName);
             }
             contracts.put(name, exchangeContract);
         }
