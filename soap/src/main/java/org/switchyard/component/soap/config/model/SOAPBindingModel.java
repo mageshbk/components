@@ -29,6 +29,7 @@ import org.switchyard.common.lang.Strings;
 import org.switchyard.common.xml.XMLHelper;
 import org.switchyard.component.soap.PortName;
 import org.switchyard.config.Configuration;
+import org.switchyard.config.Environment;
 import org.switchyard.config.model.BaseModel;
 import org.switchyard.config.model.Descriptor;
 import org.switchyard.config.model.composite.v1.V1BindingModel;
@@ -58,9 +59,15 @@ public class SOAPBindingModel extends V1BindingModel {
     private static final String PORT = "wsdlPort";
     private static final String SERVER_HOST = "serverHost";
     private static final String SERVER_PORT = "serverPort";
+    private static final String CONTEXT_PATH = "contextPath";
     private static final String COMPOSER = "composer";
     private static final String DECOMPOSER = "decomposer";
-    
+    private static final String SOAP_COMPONENT_PREFIX = "org.switchyard.component.soap";
+    private static final String ENVIRONMENT_SERVER_HOST = SOAP_COMPONENT_PREFIX + Environment.DELIMITER + SERVER_HOST;
+    private static final String ENVIRONMENT_SERVER_PORT = SOAP_COMPONENT_PREFIX + Environment.DELIMITER + SERVER_PORT;
+    private static final String ENVIRONMENT_CONTEXT_PATH = SOAP_COMPONENT_PREFIX + Environment.DELIMITER + CONTEXT_PATH;
+
+    private static final String DEFAULT_HOST = "127.0.0.1";
     private static final int DEFAULT_PORT = 8080;
 
     private PortName _port;
@@ -180,7 +187,7 @@ public class SOAPBindingModel extends V1BindingModel {
         if (_serverHost == null) {
             Configuration childConfig = getModelConfiguration().getFirstChild(SERVER_HOST);
             if (childConfig == null) {
-                _serverHost = "localhost";
+                _serverHost = Environment.getProperty(ENVIRONMENT_SERVER_HOST, DEFAULT_HOST);
             } else {
                 _serverHost = childConfig.getValue();
             }
@@ -210,7 +217,12 @@ public class SOAPBindingModel extends V1BindingModel {
         if (_serverPort == -1) {
             Configuration childConfig = getModelConfiguration().getFirstChild(SERVER_PORT);
             if (childConfig == null) {
-                _serverPort = DEFAULT_PORT;
+                String port = Environment.getProperty(ENVIRONMENT_SERVER_PORT);
+                if (port != null) {
+                    _serverPort = Integer.parseInt(port);
+                } else {
+                    _serverPort = DEFAULT_PORT;
+                }
             } else {
                 _serverPort = Integer.parseInt(childConfig.getValue());
             }
@@ -246,8 +258,13 @@ public class SOAPBindingModel extends V1BindingModel {
      */
     public String getContextPath() {
         if (_contextPath == null) {
-            Configuration childConfig = getModelConfiguration().getFirstChild("contextPath");
-            if (childConfig != null) {
+            Configuration childConfig = getModelConfiguration().getFirstChild(CONTEXT_PATH);
+            if (childConfig == null) {
+                String context = Environment.getProperty(ENVIRONMENT_CONTEXT_PATH);
+                if (context != null) {
+                    _contextPath = context;
+                }
+            } else {
                 _contextPath = childConfig.getValue();
             }
         }
