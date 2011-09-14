@@ -58,9 +58,11 @@ public class SOAPBindingModel extends V1BindingModel {
     private static final String PORT = "wsdlPort";
     private static final String SERVER_HOST = "serverHost";
     private static final String SERVER_PORT = "serverPort";
+    private static final String CONTEXT_PATH = "contextPath";
     private static final String COMPOSER = "composer";
     private static final String DECOMPOSER = "decomposer";
-    
+
+    private static final String DEFAULT_HOST = "127.0.0.1";
     private static final int DEFAULT_PORT = 8080;
 
     private PortName _port;
@@ -180,7 +182,12 @@ public class SOAPBindingModel extends V1BindingModel {
         if (_serverHost == null) {
             Configuration childConfig = getModelConfiguration().getFirstChild(SERVER_HOST);
             if (childConfig == null) {
-                _serverHost = "localhost";
+                Configuration hostConfig = getEnvironment().getFirstChild(SERVER_HOST);
+                if (hostConfig != null && hostConfig.getValue() != null) {
+                    _serverHost = hostConfig.getValue();
+                } else {
+                    _serverHost = DEFAULT_HOST;
+                }
             } else {
                 _serverHost = childConfig.getValue();
             }
@@ -210,7 +217,12 @@ public class SOAPBindingModel extends V1BindingModel {
         if (_serverPort == -1) {
             Configuration childConfig = getModelConfiguration().getFirstChild(SERVER_PORT);
             if (childConfig == null) {
-                _serverPort = DEFAULT_PORT;
+                Configuration portConfig = getEnvironment().getFirstChild(SERVER_PORT);
+                if (portConfig != null && portConfig.getValue() != null) {
+                    _serverPort = Integer.parseInt(portConfig.getValue());
+                } else {
+                    _serverPort = DEFAULT_PORT;
+                }
             } else {
                 _serverPort = Integer.parseInt(childConfig.getValue());
             }
@@ -246,8 +258,13 @@ public class SOAPBindingModel extends V1BindingModel {
      */
     public String getContextPath() {
         if (_contextPath == null) {
-            Configuration childConfig = getModelConfiguration().getFirstChild("contextPath");
-            if (childConfig != null) {
+            Configuration childConfig = getModelConfiguration().getFirstChild(CONTEXT_PATH);
+            if (childConfig == null) {
+                Configuration contextConfig = getEnvironment().getFirstChild(CONTEXT_PATH);
+                if (contextConfig != null && contextConfig.getValue() != null) {
+                    _contextPath = contextConfig.getValue();
+                }
+            } else {
                 _contextPath = childConfig.getValue();
             }
         }

@@ -64,6 +64,7 @@ public class SOAPActivator extends BaseActivator {
         if (config instanceof CompositeServiceModel) {
             for (BindingModel binding : ((CompositeServiceModel)config).getBindings()) {
                 if (binding instanceof SOAPBindingModel) {
+                    binding.setEnvironment(getComponent().getConfiguration());
                     InboundHandler handler = new InboundHandler((SOAPBindingModel)binding);
                     _inboundGateways.put(name, handler);
                     return handler;
@@ -74,6 +75,7 @@ public class SOAPActivator extends BaseActivator {
         if (config instanceof CompositeReferenceModel) {
             for (BindingModel binding : ((CompositeReferenceModel)config).getBindings()) {
                 if (binding instanceof SOAPBindingModel) {
+                    binding.setEnvironment(getComponent().getConfiguration());
                     OutboundHandler handler = new OutboundHandler((SOAPBindingModel)binding);
                     _outboundGateways.put(name, handler);
                     return handler;
