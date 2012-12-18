@@ -51,8 +51,8 @@ public class JBossWSEndpointPublisher extends AbstractEndpointPublisher {
 
             WebservicesMetaData metadata = new WebservicesMetaData();
             WebserviceDescriptionMetaData webserviceDescription = new WebserviceDescriptionMetaData(metadata);
-            metadata.addWebserviceDescription(webserviceDescription);
             webserviceDescription.setWsdlFile(getWsdlLocation());
+
             PortComponentMetaData portComponent = new PortComponentMetaData(webserviceDescription);
             portComponent.setPortComponentName(config.getServiceName() 
                                                 + ":" + config.getPort().getServiceQName().getLocalPart() 
@@ -60,15 +60,24 @@ public class JBossWSEndpointPublisher extends AbstractEndpointPublisher {
             portComponent.setServiceEndpointInterface(SEI);
             portComponent.setWsdlPort(config.getPort().getPortQName());
             portComponent.setWsdlService(config.getPort().getServiceQName());
+
             webserviceDescription.addPortComponent(portComponent);
+            metadata.addWebserviceDescription(webserviceDescription);
+
             Map<String,String> map = new HashMap<String, String>();
             map.put("/" + config.getPort().getServiceName(), SEI);
 
             wsEndpoint = new JBossWSEndpoint();
+            String context = null;
             if (config.getContextPath() != null) {
-                wsEndpoint.publish(getContextRoot(), map, metadata, handler);
+                context = getContextRoot();
             } else {
-                wsEndpoint.publish(getContextPath(), map, metadata, handler);
+                context = getContextPath();
+            }
+            if (JBossWSEndpoint.isPublished(context)) {
+                wsEndpoint.republish(context, map, metadata, handler);
+            } else {
+                wsEndpoint.publish(context, map, metadata, handler);
             }
         } catch (Exception e) {
             throw new WebServicePublishException(e);

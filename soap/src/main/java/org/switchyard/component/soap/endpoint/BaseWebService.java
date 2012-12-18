@@ -61,11 +61,27 @@ public class BaseWebService implements Provider<SOAPMessage> {
     }
 
     /**
+     * Get the service handler.
+     * @return the service handler.
+     */
+    public InboundHandler getConsumer() {
+        return _serviceConsumer;
+    }
+
+    /**
      * Sets the service handler.
      * @param serviceConsumer the service handler.
      */
     public void setConsumer(final InboundHandler serviceConsumer) {
         _serviceConsumer = serviceConsumer;
+    }
+
+    /**
+     * Get the Invocation TCCL.
+     * @return the classloader to be set.
+     */
+    public ClassLoader getInvocationClassLoader() {
+        return _invocationClassLoader;
     }
 
     /**

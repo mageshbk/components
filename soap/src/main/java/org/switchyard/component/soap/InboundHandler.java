@@ -86,6 +86,14 @@ public class InboundHandler extends BaseServiceHandler {
     }
 
     /**
+     * Get the WSEndpoint associated with this handler.
+     * @return the WSEndpoint.
+     */
+    public WSEndpoint getEndpoint() {
+        return _endpoint;
+    }
+
+    /**
      * Start lifecycle.
      * @throws WebServicePublishException If unable to publish the endpoint
      */
