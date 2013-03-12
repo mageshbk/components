@@ -1,4 +1,6 @@
 <soap:binding.soap xmlns:soap="urn:switchyard-component-soap:config:1.0">
     <soap:wsdl>Foo.wsdl</soap:wsdl>
     <soap:endpointAddress>http://modified.com/phantom</soap:endpointAddress>
+    <soap:configFile>META-INF/jaxws-client-config.xml</soap:configFile>
+    <soap:configName>Custom Client Config</soap:configName>
 </soap:binding.soap>

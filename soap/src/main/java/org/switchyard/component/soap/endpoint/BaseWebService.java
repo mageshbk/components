@@ -32,6 +32,7 @@ import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceProvider;
 import javax.xml.ws.handler.MessageContext;
 
+import org.switchyard.common.type.Classes;
 import org.switchyard.component.soap.InboundHandler;
 
 
@@ -90,10 +91,10 @@ public class BaseWebService implements Provider<SOAPMessage> {
             if (mimeContentTypes != null)  {
                 String mimeContentType = mimeContentTypes[0];
                 if ((mimeContentType != null) && (mimeContentType.indexOf(ACTION_EQUALS) == -1)) {
-                    Map headers = (Map) _wsContext.getMessageContext().get(MessageContext.HTTP_REQUEST_HEADERS);
-                    List<String> contentTypes = (List) headers.get(CONTENT_TYPE_L);
+                    Map headers = (Map)_wsContext.getMessageContext().get(MessageContext.HTTP_REQUEST_HEADERS);
+                    List<String> contentTypes = (List)headers.get(CONTENT_TYPE_L);
                     if ((contentTypes == null) || (contentTypes.size() == 0)) {
-                        contentTypes = (List) headers.get(CONTENT_TYPE);
+                        contentTypes = (List)headers.get(CONTENT_TYPE);
                     }
                     if ((contentTypes != null) && (contentTypes.size() > 0)) {
                         int idx =  contentTypes.get(0).indexOf(ACTION_EQUALS);
@@ -107,12 +108,11 @@ public class BaseWebService implements Provider<SOAPMessage> {
         }
 
         SOAPMessage response = null;
-        ClassLoader original = Thread.currentThread().getContextClassLoader();
+        ClassLoader original = Classes.setTCCL(_invocationClassLoader);
         try {
-            Thread.currentThread().setContextClassLoader(_invocationClassLoader);
             response = _serviceConsumer.invoke(request, _wsContext);
         } finally {
-            Thread.currentThread().setContextClassLoader(original);
+            Classes.setTCCL(original);
         }
         return response;
     }

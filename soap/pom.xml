@@ -72,6 +72,13 @@
             <artifactId>jbossws-spi</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!--
+        <dependency>
+            <groupId>org.jboss.as</groupId>
+            <artifactId>jboss-as-webservices-server-integration</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        -->
         <dependency>
             <groupId>wsdl4j</groupId>
             <artifactId>wsdl4j</artifactId>

@@ -55,6 +55,8 @@ public class SOAPBindingModel extends V1BindingModel {
     private static final String CONTEXT_PATH = "contextPath";
     private static final String SOCKET_ADDRESS = "socketAddr";
     private static final String ENDPOINT_ADDRESS = "endpointAddress";
+    private static final String CONFIG_FILE = "configFile";
+    private static final String CONFIG_NAME = "configName";
 
     private PortName _port;
     private String _wsdl;
@@ -63,6 +65,8 @@ public class SOAPBindingModel extends V1BindingModel {
     private String _contextPath;
     private Boolean _publishAsWS = false;
     private String _endpointAddress;
+    private String _configFile;
+    private String _configName;
     
     private Configuration _environment = Configurations.emptyConfig();
     /**
@@ -70,7 +74,7 @@ public class SOAPBindingModel extends V1BindingModel {
      */
     public SOAPBindingModel() {
         super(SOAP, DEFAULT_NAMESPACE);
-        setModelChildrenOrder(WSDL, PORT, SOCKET_ADDRESS, ENDPOINT_ADDRESS);
+        setModelChildrenOrder(WSDL, PORT, SOCKET_ADDRESS, ENDPOINT_ADDRESS, CONFIG_FILE, CONFIG_NAME);
     }
 
     /**
@@ -81,7 +85,7 @@ public class SOAPBindingModel extends V1BindingModel {
      */
     public SOAPBindingModel(Configuration config, Descriptor desc) {
         super(config, desc);
-        setModelChildrenOrder(WSDL, PORT, SOCKET_ADDRESS);
+        setModelChildrenOrder(WSDL, PORT, SOCKET_ADDRESS, ENDPOINT_ADDRESS, CONFIG_FILE, CONFIG_NAME);
     }
 
     /**
@@ -289,6 +293,54 @@ public class SOAPBindingModel extends V1BindingModel {
      */
     public void setEndpointAddress(String endpointAddress) {
         this._endpointAddress = endpointAddress;
+    }
+
+    /**
+     * Gets the target config file of the WebService.
+     * 
+     * @return the config file
+     */
+    public String getConfigFile() {
+        if (_configFile == null) {
+            Configuration childConfig = getModelConfiguration().getFirstChild(CONFIG_FILE);
+            if (childConfig != null) {
+                _configFile = childConfig.getValue();
+            }
+        }
+        return _configFile;
+    }
+
+    /**
+     * Sets the target config file of the WebService.
+     * 
+     * @param configFile the config file to set
+     */
+    public void setConfigFile(String configFile) {
+        this._configFile = configFile;
+    }
+
+    /**
+     * Gets the target config name of the WebService.
+     * 
+     * @return the config name
+     */
+    public String getConfigName() {
+        if (_configName == null) {
+            Configuration childConfig = getModelConfiguration().getFirstChild(CONFIG_NAME);
+            if (childConfig != null) {
+                _configName = childConfig.getValue();
+            }
+        }
+        return _configName;
+    }
+
+    /**
+     * Sets the target config name of the WebService.
+     * 
+     * @param configName the config name to set
+     */
+    public void setConfigName(String configName) {
+        this._configName = configName;
     }
 
     /**

@@ -22,7 +22,7 @@ package org.switchyard.component.soap.endpoint;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.jboss.wsf.spi.metadata.webservices.JBossWebservicesMetaData;
 import org.jboss.wsf.spi.metadata.webservices.PortComponentMetaData;
 import org.jboss.wsf.spi.metadata.webservices.WebserviceDescriptionMetaData;
 import org.jboss.wsf.spi.metadata.webservices.WebservicesMetaData;
@@ -37,8 +37,6 @@ import org.switchyard.component.soap.config.model.SOAPBindingModel;
  */
 public class JBossWSEndpointPublisher extends AbstractEndpointPublisher {
 
-    private static final Logger LOGGER = Logger.getLogger(JBossWSEndpointPublisher.class);
-
     private static final String SEI = "org.switchyard.component.soap.endpoint.BaseWebService";
 
     /**
@@ -48,27 +46,38 @@ public class JBossWSEndpointPublisher extends AbstractEndpointPublisher {
         JBossWSEndpoint wsEndpoint = null;
         try {
             initialize(config);
+            Map<String,String> map = new HashMap<String, String>();
+            map.put("/" + config.getPort().getServiceName(), SEI);
 
-            WebservicesMetaData metadata = new WebservicesMetaData();
-            WebserviceDescriptionMetaData webserviceDescription = new WebserviceDescriptionMetaData(metadata);
-            metadata.addWebserviceDescription(webserviceDescription);
-            webserviceDescription.setWsdlFile(getWsdlLocation());
-            PortComponentMetaData portComponent = new PortComponentMetaData(webserviceDescription);
+            WebservicesMetaData wsMetadata = new WebservicesMetaData();
+            WebserviceDescriptionMetaData wsDescMetaData = new WebserviceDescriptionMetaData(wsMetadata);
+            wsMetadata.addWebserviceDescription(wsDescMetaData);
+            wsDescMetaData.setWsdlFile(getWsdlLocation());
+            PortComponentMetaData portComponent = new PortComponentMetaData(wsDescMetaData);
             portComponent.setPortComponentName(config.getServiceName() 
                                                 + ":" + config.getPort().getServiceQName().getLocalPart() 
                                                 + ":" + config.getPort().getPortQName().getLocalPart()); //unique ID
             portComponent.setServiceEndpointInterface(SEI);
             portComponent.setWsdlPort(config.getPort().getPortQName());
             portComponent.setWsdlService(config.getPort().getServiceQName());
-            webserviceDescription.addPortComponent(portComponent);
-            Map<String,String> map = new HashMap<String, String>();
-            map.put("/" + config.getPort().getServiceName(), SEI);
+            wsDescMetaData.addPortComponent(portComponent);
+
+            JBossWebservicesMetaData jbwsMetadata = null;
+            String configName = config.getConfigName();
+            if (configName != null) {
+                jbwsMetadata = new JBossWebservicesMetaData(null);
+                jbwsMetadata.setConfigName(configName);
+                String configFile = config.getConfigFile();
+                if (configFile != null) {
+                    jbwsMetadata.setConfigFile(configFile);
+                }
+            }
 
             wsEndpoint = new JBossWSEndpoint();
             if (config.getContextPath() != null) {
-                wsEndpoint.publish(getContextRoot(), map, metadata, handler);
+                wsEndpoint.publish(getContextRoot(), map, wsMetadata, jbwsMetadata, handler);
             } else {
-                wsEndpoint.publish(getContextPath(), map, metadata, handler);
+                wsEndpoint.publish(getContextPath(), map, wsMetadata, jbwsMetadata, handler);
             }
         } catch (Exception e) {
             throw new WebServicePublishException(e);

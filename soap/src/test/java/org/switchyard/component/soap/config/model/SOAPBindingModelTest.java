@@ -20,8 +20,6 @@ package org.switchyard.component.soap.config.model;
 
 import junit.framework.Assert;
 
-import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Test;
 import org.switchyard.config.model.ModelPuller;
 
@@ -40,5 +38,7 @@ public class SOAPBindingModelTest {
         SOAPBindingModel model = puller.pull(SOAP_BINDING, getClass());
         Assert.assertTrue(model.isModelValid());
         Assert.assertEquals("Missing endpoint address", model.getEndpointAddress(), "http://modified.com/phantom");
+        Assert.assertEquals("Missing config file", model.getConfigFile(), "META-INF/jaxws-client-config.xml");
+        Assert.assertEquals("Missing config name", model.getConfigName(), "Custom Client Config");
     }
 }

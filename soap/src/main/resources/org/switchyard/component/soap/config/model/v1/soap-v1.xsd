@@ -93,7 +93,21 @@ MA  02110-1301, USA.
                     <element name="endpointAddress" type="string" minOccurs="0" maxOccurs="1">
                         <annotation>
                             <documentation>
-                                The enpoint address override
+                                The endpoint address override
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="configFile" type="string" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>
+                                The config file
+                            </documentation>
+                        </annotation>
+                    </element>
+                    <element name="configName" type="string" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>
+                                The config name
                             </documentation>
                         </annotation>
                     </element>
