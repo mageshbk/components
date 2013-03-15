@@ -33,6 +33,8 @@ import org.jboss.wsf.spi.publish.EndpointPublisherFactory;
 import org.switchyard.common.type.Classes;
 import org.switchyard.component.soap.InboundHandler;
 import org.switchyard.component.soap.WebServicePublishException;
+import org.switchyard.component.soap.util.EndpointPublisherImpl;
+import org.switchyard.component.soap.util.EndpointPublisherFactoryImpl;
 
 /**
  * Wrapper for JBossWS endpoints.
@@ -69,22 +71,14 @@ public class JBossWSEndpoint implements WSEndpoint {
      * {@inheritDoc}
      */
     public void publish(String contextRoot, Map<String, String> urlPatternToClassNameMap, WebservicesMetaData wsMetadata, JBossWebservicesMetaData jbwsMetadata, InboundHandler handler) throws Exception {
-        ClassLoader tccl = Classes.getTCCL();
-        _context = _publisher.publish(contextRoot, tccl, urlPatternToClassNameMap, wsMetadata);
-        /*
-        if (jbwsMetadata == null) {
-            _context = _publisher.publish(contextRoot, tccl, urlPatternToClassNameMap, wsMetadata, jbwsMetadata);
-        } else {
-            WSEndpointDeploymentUnit unit = new WSEndpointDeploymentUnit(tccl, contextRoot, urlPatternToClassNameMap, wsMetadata);
-            unit.putAttachment(WSAttachmentKeys.JBOSS_WEBSERVICES_METADATA_KEY, jbwsMetadata);
-            _context = new Context(contextRoot, ((EndpointPublisherImpl)_publisher).publish(null, unit));
-            //Deployment dep = unit.getAttachment(WSAttachmentKeys.DEPLOYMENT_KEY);
-            //dep.addAttachment(JBossWebservicesMetaData.class, jbwsMetadata);
-        }
-        */
+        //ClassLoader tccl = Classes.getTCCL();
+        _context = ((EndpointPublisherImpl)_publisher).publish(contextRoot, Thread.currentThread().getContextClassLoader(), urlPatternToClassNameMap, wsMetadata, jbwsMetadata);
         for (Endpoint ep : _context.getEndpoints()) {
             BaseWebService wsProvider = (BaseWebService)ep.getInstanceProvider().getInstance(BaseWebService.class.getName()).getValue();
-            wsProvider.setInvocationClassLoader(tccl);
+         System.out.println("wsProvider ..... " + wsProvider);
+         System.out.println("wsProvider class ..... " + wsProvider.getClass());
+         System.out.println("wsProvider epConfig ..... " + wsProvider.getClass().getAnnotation(org.jboss.ws.api.annotation.EndpointConfig.class));
+            wsProvider.setInvocationClassLoader(Thread.currentThread().getContextClassLoader());
             // Hook the handler
             wsProvider.setConsumer(handler);
         }
@@ -106,8 +100,9 @@ public class JBossWSEndpoint implements WSEndpoint {
 
     static {
         try {
-            ClassLoader loader = ClassLoaderProvider.getDefaultProvider().getWebServiceSubsystemClassLoader();
-            FACTORY = ServiceLoader.load(EndpointPublisherFactory.class, loader).iterator().next();
+            //ClassLoader loader = ClassLoaderProvider.getDefaultProvider().getWebServiceSubsystemClassLoader();
+            //FACTORY = ServiceLoader.load(EndpointPublisherFactory.class, loader).iterator().next();
+            FACTORY = new EndpointPublisherFactoryImpl();
         } catch (Exception e) {
             throw new WebServicePublishException(e);
         }

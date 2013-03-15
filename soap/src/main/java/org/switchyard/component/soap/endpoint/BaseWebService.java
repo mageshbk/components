@@ -32,6 +32,7 @@ import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceProvider;
 import javax.xml.ws.handler.MessageContext;
 
+import org.jboss.ws.api.annotation.EndpointConfig;
 import org.switchyard.common.type.Classes;
 import org.switchyard.component.soap.InboundHandler;
 
@@ -43,6 +44,7 @@ import org.switchyard.component.soap.InboundHandler;
  */
 @WebServiceProvider
 @ServiceMode(Mode.MESSAGE)
+@EndpointConfig(configFile = "META-INF/jaxws-endpoint-config.xml", configName = "SwitchYard-Endpoint-Config")
 public class BaseWebService implements Provider<SOAPMessage> {
 
     private static String ACTION_EQUALS = "action=";

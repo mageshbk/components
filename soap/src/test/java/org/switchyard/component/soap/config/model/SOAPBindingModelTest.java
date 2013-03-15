@@ -36,7 +36,7 @@ public class SOAPBindingModelTest {
     public void testReadConfigBinding() throws Exception {
         ModelPuller<SOAPBindingModel> puller = new ModelPuller<SOAPBindingModel>();
         SOAPBindingModel model = puller.pull(SOAP_BINDING, getClass());
-        Assert.assertTrue(model.isModelValid());
+        model.assertModelValid();
         Assert.assertEquals("Missing endpoint address", model.getEndpointAddress(), "http://modified.com/phantom");
         Assert.assertEquals("Missing config file", model.getConfigFile(), "META-INF/jaxws-client-config.xml");
         Assert.assertEquals("Missing config name", model.getConfigName(), "Custom Client Config");

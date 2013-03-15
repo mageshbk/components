@@ -74,7 +74,7 @@ public class SOAPBindingModel extends V1BindingModel {
      */
     public SOAPBindingModel() {
         super(SOAP, DEFAULT_NAMESPACE);
-        setModelChildrenOrder(WSDL, PORT, SOCKET_ADDRESS, ENDPOINT_ADDRESS, CONFIG_FILE, CONFIG_NAME);
+        setModelChildrenOrder(WSDL, PORT, SOCKET_ADDRESS, ENDPOINT_ADDRESS, CONTEXT_PATH, CONFIG_FILE, CONFIG_NAME);
     }
 
     /**
@@ -85,7 +85,7 @@ public class SOAPBindingModel extends V1BindingModel {
      */
     public SOAPBindingModel(Configuration config, Descriptor desc) {
         super(config, desc);
-        setModelChildrenOrder(WSDL, PORT, SOCKET_ADDRESS, ENDPOINT_ADDRESS, CONFIG_FILE, CONFIG_NAME);
+        setModelChildrenOrder(WSDL, PORT, SOCKET_ADDRESS, ENDPOINT_ADDRESS, CONTEXT_PATH, CONFIG_FILE, CONFIG_NAME);
     }
 
     /**
