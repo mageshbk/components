@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ - Copyright 2014 Red Hat Inc. and/or its affiliates and other contributors.
+ - 
+ - Licensed under the Apache License, Version 2.0 (the "License");
+ - you may not use this file except in compliance with the License.
+ - You may obtain a copy of the License at
+ - http://www.apache.org/licenses/LICENSE-2.0
+ - Unless required by applicable law or agreed to in writing, software
+ - distributed under the License is distributed on an "AS IS" BASIS,
+ - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ - See the License for the specific language governing permissions and
+ - limitations under the License.
+ -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+     targetNamespace="urn:switchyard-component-camel-http4:config:2.0"
+     xmlns:tns="urn:switchyard-component-camel-http4:config:2.0"
+     xmlns:switchyard="urn:switchyard-config:switchyard:2.0"
+     elementFormDefault="qualified">
+
+    <import namespace="urn:switchyard-config:switchyard:2.0"/>
+    <include schemaLocation="camel-common_2_0.xsd" />
+
+    <element name="binding.http4" type="tns:CamelHttpBindingType" substitutionGroup="switchyard:binding.switchyard"/>
+    <complexType name="CamelHttpBindingType">
+        <complexContent>
+            <extension base="tns:BaseCamelBinding">
+                <sequence>
+                    <element name="resourceUri" type="anyURI"/>
+                    <element name="host" type="string" minOccurs="0" maxOccurs="1"/>
+                    <element name="port" type="switchyard:propInteger" minOccurs="0" maxOccurs="1"/>
+                    <element name="maxTotalConnections" type="switchyard:propInteger" minOccurs="0" maxOccurs="1"/>
+                    <element name="connectionsPerRoute" type="switchyard:propInteger" minOccurs="0" maxOccurs="1"/>
+                    <element name="cookieStore" type="string" minOccurs="0" maxOccurs="1"/>
+                    <element name="httpClientConfigurer" type="string" minOccurs="0" maxOccurs="1"/>
+                    <element name="clientConnectionManager" type="string" minOccurs="0" maxOccurs="1"/>
+                    <element name="httpBinding" type="string" minOccurs="0" maxOccurs="1"/>
+                    <element name="httpContext" type="string" minOccurs="0" maxOccurs="1"/>
+                    <element name="sslContextParameters" type="string" minOccurs="0" maxOccurs="1"/>
+                    <element name="x509HostnameVerifier" type="string" minOccurs="0" maxOccurs="1"/>
+                    <element name="connectionTimeToLive" type="switchyard:propLong" minOccurs="0" maxOccurs="1"/>
+                    <element name="authenticationPreemptive" type="boolean" minOccurs="0" maxOccurs="1"/>
+                    <element name="throwExceptionOnFailure" type="boolean" minOccurs="0" maxOccurs="1"/>
+                    <element name="bridgeEndpoint" type="boolean" minOccurs="0" maxOccurs="1"/>
+                    <element name="clearExpiredCookies" type="boolean" minOccurs="0" maxOccurs="1"/>
+                    <element name="disableStreamCache" type="boolean" minOccurs="0" maxOccurs="1"/>
+                    <element name="headerFilterStrategy" type="string" minOccurs="0" maxOccurs="1"/>
+                    <element name="transferException" type="boolean" minOccurs="0" maxOccurs="1"/>
+                    <element name="urlRewrite" type="string" minOccurs="0" maxOccurs="1"/>
+                    <element name="authUsername" type="string" minOccurs="0" maxOccurs="1"/>
+                    <element name="authPassword" type="string" minOccurs="0" maxOccurs="1"/>
+                    <element name="authDomain" type="string" minOccurs="0" maxOccurs="1"/>
+                    <element name="authHost" type="string" minOccurs="0" maxOccurs="1"/>
+                    <element name="proxyAuthHost" type="string" minOccurs="0" maxOccurs="1"/>
+                    <element name="proxyAuthPort" type="switchyard:propInteger" minOccurs="0" maxOccurs="1"/>
+                    <element name="proxyAuthScheme" type="string" minOccurs="0" maxOccurs="1"/>
+                    <element name="proxyAuthUsername" type="string" minOccurs="0" maxOccurs="1"/>
+                    <element name="proxyAuthPassword" type="string" minOccurs="0" maxOccurs="1"/>
+                    <element name="proxyAuthDomain" type="string" minOccurs="0" maxOccurs="1"/>
+                    <element name="proxyAuthNtHost" type="string" minOccurs="0" maxOccurs="1"/>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+
+</schema>

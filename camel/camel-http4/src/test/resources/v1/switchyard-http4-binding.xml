@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ - Copyright 2014 Red Hat Inc. and/or its affiliates and other contributors.
+ - 
+ - Licensed under the Apache License, Version 2.0 (the "License");
+ - you may not use this file except in compliance with the License.
+ - You may obtain a copy of the License at
+ - http://www.apache.org/licenses/LICENSE-2.0
+ - Unless required by applicable law or agreed to in writing, software
+ - distributed under the License is distributed on an "AS IS" BASIS,
+ - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ - See the License for the specific language governing permissions and
+ - limitations under the License.
+ -->
+<switchyard xmlns="urn:switchyard-config:switchyard:2.0"
+    xmlns:sca="http://docs.oasis-open.org/ns/opencsa/sca/200912"
+    xmlns:http4="urn:switchyard-component-camel-http4:config:2.0">
+
+    <sca:composite name="http4Test" targetNamespace="urn:http4-core:test:1.0">
+        <sca:reference name="http4Test" promote="SimpleHttpService">
+            <http4:binding.http4>
+                <http4:resourceUri>resource</http4:resourceUri>
+                <http4:host>localhost</http4:host>
+                <http4:port>8080</http4:port>
+                <http4:maxTotalConnections>200</http4:maxTotalConnections>
+                <http4:connectionsPerRoute>20</http4:connectionsPerRoute>
+                <http4:clientConnectionManager>#clientConnectionManager</http4:clientConnectionManager>
+                <http4:connectionTimeToLive>-1</http4:connectionTimeToLive>
+                <http4:authenticationPreemptive>false</http4:authenticationPreemptive>
+                <http4:throwExceptionOnFailure>true</http4:throwExceptionOnFailure>
+                <http4:bridgeEndpoint>false</http4:bridgeEndpoint>
+                <http4:clearExpiredCookies>true</http4:clearExpiredCookies>
+                <http4:disableStreamCache>true</http4:disableStreamCache>
+                <http4:transferException>false</http4:transferException>
+                <!--<http4:authUsername>none</http4:authUsername>
+                <http4:authPassword>none</http4:authPassword>
+                <http4:authDomain>domain</http4:authDomain>
+                <http4:authHost>localhost</http4:authHost>
+                <http4:proxyAuthHost>proxyHost</http4:proxyAuthHost>
+                <http4:proxyAuthPort>80</http4:proxyAuthPort>
+                <http4:proxyAuthScheme>scheme</http4:proxyAuthScheme>
+                <http4:proxyAuthUsername>none</http4:proxyAuthUsername>
+                <http4:proxyAuthPassword>none</http4:proxyAuthPassword>
+                <http4:proxyAuthDomain>domain</http4:proxyAuthDomain>
+                <http4:proxyAuthNtHost>nthost</http4:proxyAuthNtHost>-->
+            </http4:binding.http4>
+        </sca:reference>
+    </sca:composite>
+</switchyard>
