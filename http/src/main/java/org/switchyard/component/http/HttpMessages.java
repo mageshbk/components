@@ -86,5 +86,21 @@ public interface HttpMessages {
     @Message(id = 36407, value = "Unexpected exception handling HTTP Message")
     HandlerException unexpectedExceptionHandlingHTTPMessage(@Cause Exception e);
 
+    /**
+     * unexpectedExceptionLoadingKeystore method definition.
+     * @param e the e
+     * @return  HandlerException
+     */
+    @Message(id = 36408, value = "Unexpected exception loading keystore")
+    HttpConsumeException unexpectedExceptionLoadingKeystore(@Cause Exception e);
+
+    /**
+     * unexpectedExceptionClosingKeystore method definition.
+     * @param e the e
+     * @return  HandlerException
+     */
+    @Message(id = 36409, value = "Unexpected exception closing keystore")
+    HttpConsumeException unexpectedExceptionClosingKeystore(@Cause Exception e);
+
 }
 

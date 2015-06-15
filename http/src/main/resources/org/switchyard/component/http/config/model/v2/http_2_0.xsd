@@ -75,6 +75,11 @@
                                     <documentation>Http proxy settings.</documentation>
                                 </annotation>
                             </element>
+                            <element name="ssl" type="http:SSLContextType" minOccurs="0" maxOccurs="1">
+                                <annotation>
+                                    <documentation>Http SSL Context settings.</documentation>
+                                </annotation>
+                            </element>
                         </sequence>
                     </choice>
                 </sequence>
@@ -149,6 +154,24 @@
                     <element name="password" type="string" maxOccurs="1">
                         <annotation>
                             <documentation>Proxy password.</documentation>
+                        </annotation>
+                    </element>
+                </sequence>
+            </extension>
+        </complexContent>
+    </complexType>
+    <complexType name="SSLContextType">
+        <complexContent>
+            <extension base="sca:CommonExtensionBase">
+                <sequence>
+                    <element name="keystore" type="string" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>SSL trust store.</documentation>
+                        </annotation>
+                    </element>
+                    <element name="keystorePass" type="string" minOccurs="0" maxOccurs="1">
+                        <annotation>
+                            <documentation>SSL store password.</documentation>
                         </annotation>
                     </element>
                 </sequence>

@@ -178,4 +178,10 @@ public interface HttpBindingModel extends BindingModel {
      * @return true if set, false otherwise
      */
     public Boolean hasAuthentication();
+
+    /**
+     * Gets the SSL context.
+     * @return the SSL config
+     */
+    public SSLContextModel getSSLContextConfig();
 }

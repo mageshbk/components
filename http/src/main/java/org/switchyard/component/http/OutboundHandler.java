@@ -14,12 +14,18 @@
  
 package org.switchyard.component.http;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.net.ssl.SSLContext;
 
 import org.jboss.logging.Logger;
 import org.apache.http.Header;
@@ -45,13 +51,20 @@ import org.apache.http.client.params.AuthPolicy;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.util.EntityUtils;
 import org.switchyard.Exchange;
 import org.switchyard.HandlerException;
 import org.switchyard.Message;
@@ -63,6 +76,7 @@ import org.switchyard.component.http.composer.HttpBindingData;
 import org.switchyard.component.http.composer.HttpRequestBindingData;
 import org.switchyard.component.http.composer.HttpResponseBindingData;
 import org.switchyard.component.http.config.model.HttpBindingModel;
+import org.switchyard.component.http.config.model.SSLContextModel;
 import org.switchyard.deploy.BaseServiceHandler;
 import org.switchyard.label.BehaviorLabel;
 import org.switchyard.runtime.event.ExchangeCompletionEvent;
@@ -95,6 +109,7 @@ public class OutboundHandler extends BaseServiceHandler {
     private Credentials _credentials;
     private HttpHost _proxyHost;
     private Integer _timeout;
+    private SSLSocketFactory _sslFactory;
 
     /**
      * Constructor.
@@ -162,6 +177,26 @@ public class OutboundHandler extends BaseServiceHandler {
             }
         }
         _timeout = _config.getTimeout();
+        SSLContextModel sslContextConfig = _config.getSSLContextConfig();
+        if (sslContextConfig != null) {
+            FileInputStream instream = null;
+            try {
+                KeyStore truststore  = KeyStore.getInstance(KeyStore.getDefaultType());
+                instream = new FileInputStream(new File(sslContextConfig.getKeystore()));
+                truststore.load(instream, sslContextConfig.getKeystorePass().toCharArray());
+                _sslFactory = new SSLSocketFactory(truststore);
+            } catch (Exception e) {
+                throw HttpMessages.MESSAGES.unexpectedExceptionLoadingKeystore(e);
+            } finally {
+                if (instream != null) {
+                    try {
+                        instream.close();
+                    } catch (IOException ioe) {
+                        throw HttpMessages.MESSAGES.unexpectedExceptionClosingKeystore(ioe);
+                    }
+                }
+            }
+        }
     }
 
     private AuthScope createAuthScope(String host, String portStr, String realm) throws HttpConsumeException {
@@ -199,7 +234,41 @@ public class OutboundHandler extends BaseServiceHandler {
             throw HttpMessages.MESSAGES.bindingNotStarted(_referenceName, _bindingName);
         }
 
-        HttpClient httpclient = new DefaultHttpClient();
+        HttpClient httpclient = null;
+        httpclient = new DefaultHttpClient();
+
+        /*try {
+        } catch (Exception e) {
+            throw HttpMessages.MESSAGES.unexpectedExceptionLoadingKeystore(e);
+        } finally {
+            if (instream != null) {
+                try {
+                    instream.close();
+                } catch (IOException ioe) {
+                    throw HttpMessages.MESSAGES.unexpectedExceptionClosingKeystore(ioe);
+                }
+            }
+        }*/
+        if (_sslFactory != null) {
+            URL url = null;
+            try {
+                url = new URL(_baseAddress);
+            } catch (MalformedURLException mue) {
+                throw HttpMessages.MESSAGES.invalidHttpURL(mue);
+            }
+            if (url != null) {
+                Scheme sch = new Scheme("https", url.getPort(), _sslFactory);
+                httpclient.getConnectionManager().getSchemeRegistry().register(sch);
+            }
+        }
+        /*if (_sslFactory != null) {
+            httpclient = HttpClients.custom()
+                    .setSSLSocketFactory(_sslFactory)
+                    .build();
+        } else {
+            httpclient = new DefaultHttpClient();
+        }*/
+
         if (_timeout != null) {
             HttpParams httpParams = httpclient.getParams();
             HttpConnectionParams.setConnectionTimeout(httpParams, _timeout);

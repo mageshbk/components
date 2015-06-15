@@ -22,6 +22,7 @@ import org.switchyard.component.http.config.model.HttpNameValueModel;
 import org.switchyard.component.http.config.model.HttpNameValueModel.HttpName;
 import org.switchyard.component.http.config.model.NtlmAuthModel;
 import org.switchyard.component.http.config.model.ProxyModel;
+import org.switchyard.component.http.config.model.SSLContextModel;
 import org.switchyard.config.Configuration;
 import org.switchyard.config.model.Descriptor;
 import org.switchyard.config.model.composite.v1.V1BindingModel;
@@ -249,6 +250,12 @@ public class V1HttpBindingModel extends V1BindingModel implements HttpBindingMod
         setChildModel(proxyConfig);
         _proxyConfig = proxyConfig;
         return this;
+    }
+
+    @Override
+    public SSLContextModel getSSLContextConfig() {
+        // introduced in v2
+        return null;
     }
 
     /**
